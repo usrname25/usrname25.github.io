@@ -2,24 +2,88 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Trang web đầu tiên</title>
+  <title>Trang Giới Thiệu</title>
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+    }
+    header {
+      background: #0077cc;
+      color: white;
+      padding: 20px;
       text-align: center;
-      padding: 50px;
-      background: #f0f0f0;
     }
-    h1 {
-      color: #2c3e50;
+    nav {
+      background: #005fa3;
+      padding: 10px;
+      text-align: center;
     }
-    p {
-      color: #555;
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    section {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #0077cc;
+    }
+    footer {
+      background: #eee;
+      text-align: center;
+      padding: 15px;
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
-  <h1>Xin chào, đây là trang web của tôi!</h1>
-  <p>Được host miễn phí bằng GitHub Pages 🚀</p>
+  <header>
+    <h1>Xin chào, tôi là Lý Huỳnh 👋</h1>
+    <p>Đây là website cá nhân trên GitHub Pages</p>
+  </header>
+
+  <nav>
+    <a href="#about">Giới thiệu</a>
+    <a href="#projects">Dự án</a>
+    <a href="#contact">Liên hệ</a>
+  </nav>
+
+  <section id="about">
+    <h2>Giới thiệu</h2>
+    <p>Tôi là một người đam mê công nghệ, thích tìm hiểu về web và sáng tạo nội dung. 
+       Đây là trang web mẫu để thử nghiệm GitHub Pages.</p>
+  </section>
+
+  <section id="projects">
+    <h2>Dự án</h2>
+    <ul>
+      <li>🌐 Website cá nhân</li>
+      <li>📱 Ứng dụng nhỏ học lập trình</li>
+      <li>🎬 Nội dung video TikTok</li>
+    </ul>
+  </section>
+
+  <section id="contact">
+    <h2>Liên hệ</h2>
+    <p>Bạn có thể liên hệ với tôi qua email: 
+      <a href="mailto:tenban@example.com">tenban@example.com</a></p>
+  </section>
+
+  <footer>
+    © 2025 - Trang cá nhân của tôi
+  </footer>
 </body>
 </html>
