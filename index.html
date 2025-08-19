@@ -1,111 +1,15 @@
-<!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>xvideos Pro - Trang xem video mẫu</title>
-  <style>
-    body{font-family: system-ui, Arial; margin:0; background:#111; color:#eee;}
-    header{padding:16px; background:#0f0f0f; display:flex; align-items:center; justify-content:space-between;}
-    .brand{font-weight:700; font-size:18px;}
-    .search input{padding:8px; border-radius:6px; border:1px solid #333; background:#151515; color:#fff;}
-    main{padding:18px;}
-    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px;}
-    .card{background:#0f0f0f; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.6);}
-    .thumb{width:100%; height:130px; object-fit:cover; display:block;}
-    .meta{padding:10px;}
-    .title{font-size:14px; margin:0 0 6px;}
-    .small{font-size:12px; color:#aaa;}
-    /* Player modal */
-    .player-modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.7);}
-    .player-box{width:90%; max-width:960px; background:#000; border-radius:8px; overflow:hidden;}
-    .player-box video{width:100%; height:auto; display:block; background:#000;}
-    .close-btn{position:absolute; right:18px; top:18px; background:#222; color:#fff; padding:6px 8px; border-radius:6px; cursor:pointer;}
-  </style>
-</head>
-<body>
-<header>
-  <div class="brand">MyVideo</div>
-  <div class="search">
-    <input id="search" placeholder="Tìm kiếm video..." />
-  </div>
-</header>
+from xvideos_api import Client
+# Initialize a Client object
+client = Client()
 
-<main>
-  <h2>Video nổi bật</h2>
-  <div id="grid" class="grid">
-    <!-- Các thẻ video sẽ được render bởi JS -->
-  </div>
-</main>
+# Fetch a video
+video_object = client.get_video("<insert_url_here>")
 
-<!-- Player modal -->
-<div id="playerModal" class="player-modal" role="dialog" aria-hidden="true">
-  <div class="player-box">
-    <button id="closeBtn" class="close-btn">Đóng</button>
-    <video id="player" controls playsinline>
-      <source id="playerSource" src="" type="video/mp4">
-      Trình duyệt của bạn không hỗ trợ thẻ video.
-    </video>
-  </div>
-</div>
+# Information from Video objects
+print(video_object.title)
+print(video_object.likes)
+# Download the video
 
-<script>
-  // Dữ liệu mẫu - thay bằng API thực tế
-  const videos = [
-    {id:1, title:"Video mẫu 1", thumb:"https://youtu.be/Igc33RfmfaM?si=BvHG8nstuI10bZib", src:"https://youtu.be/Igc33RfmfaM?si=BvHG8nstuI10bZib"},
-    {id:2, title:"Video mẫu 2", thumb:"https://picsum.photos/seed/v2/640/360", src:"/videos/sample2.mp4"},
-    {id:3, title:"Video mẫu 3", thumb:"https://picsum.photos/seed/v3/640/360", src:"/videos/sample3.mp4"},
-    // thêm dữ liệu...
-  ];
+video_object.download(downloader="threaded", quality="best", path="your_output_path + filename")
 
-  const grid = document.getElementById('grid');
-  function render(list){
-    grid.innerHTML = '';
-    list.forEach(v=>{
-      const el = document.createElement('div');
-      el.className = 'card';
-      el.innerHTML = `
-        <img class="thumb" src="${v.thumb}" alt="${escapeHtml(v.title)}" />
-        <div class="meta">
-          <h3 class="title">${escapeHtml(v.title)}</h3>
-          <div class="small">Lượt xem: -- • ${new Date().getFullYear()}</div>
-        </div>`;
-      el.addEventListener('click', ()=> openPlayer(v));
-      grid.appendChild(el);
-    });
-  }
-
-  render(videos);
-
-  // Tìm kiếm đơn giản
-  document.getElementById('search').addEventListener('input', (e)=>{
-    const q = e.target.value.toLowerCase().trim();
-    render(videos.filter(v => v.title.toLowerCase().includes(q)));
-  });
-
-  // Player modal logic
-  const modal = document.getElementById('playerModal');
-  const player = document.getElementById('player');
-  const playerSource = document.getElementById('playerSource');
-  function openPlayer(v){
-    player.pause();
-    playerSource.src = v.src; // Đường dẫn video phải là file bạn được phép dùng / stream
-    player.load();
-    modal.style.display = 'flex';
-    modal.setAttribute('aria-hidden','false');
-  }
-  document.getElementById('closeBtn').addEventListener('click', closePlayer);
-  modal.addEventListener('click', (e)=> { if(e.target === modal) closePlayer(); });
-  function closePlayer(){
-    player.pause();
-    player.currentTime = 0;
-    modal.style.display = 'none';
-    modal.setAttribute('aria-hidden','true');
-  }
-
-  function escapeHtml(text) {
-    return text.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-</script>
-</body>
-</html>
+# SEE DOCUMENTATION FOR MORE
