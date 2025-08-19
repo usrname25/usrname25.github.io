@@ -2,25 +2,172 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Trang web đầu tiên</title>
+  <title>Portfolio - Lý Huỳnh</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f9fafc;
+      color: #333;
+      line-height: 1.6;
+    }
+    header {
+      background: #0f172a;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 { font-size: 22px; }
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    nav a:hover { color: #38bdf8; }
+
+    .hero {
       text-align: center;
-      padding: 50px;
-      background: #f0f0f0;
+      padding: 80px 20px;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      color: white;
     }
-    h1 {
-      color: #2c3e50;
+    .hero h2 {
+      font-size: 40px;
+      margin-bottom: 20px;
     }
-    p {
-      color: #555;
+    .hero p {
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+    .hero a {
+      display: inline-block;
+      padding: 12px 24px;
+      background: white;
+      color: #2563eb;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .hero a:hover { background: #f1f5f9; }
+
+    section {
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+    section h2 {
+      font-size: 28px;
+      color: #2563eb;
+      margin-bottom: 20px;
+      border-left: 5px solid #2563eb;
+      padding-left: 10px;
+    }
+    .about p { font-size: 18px; }
+
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .card .content {
+      padding: 15px;
+    }
+    .card h3 { margin-bottom: 10px; }
+    .card p { color: #555; font-size: 14px; }
+
+    .contact form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .contact input, .contact textarea {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      width: 100%;
+    }
+    .contact button {
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .contact button:hover { background: #1d4ed8; }
+
+    footer {
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      margin-top: 50px;
     }
   </style>
 </head>
 <body>
-  <h1>Xin chào, đây là trang web của tôi!</h1>
-  <p>Được host miễn phí bằng GitHub Pages 🚀</p>
-</body>
-<8
-  ,html>
+
+  <header>
+    <h1>Lý Huỳnh</h1>
+    <nav>
+      <a href="#about">Giới thiệu</a>
+      <a href="#projects">Dự án</a>
+      <a href="#contact">Liên hệ</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h2>Xin chào, tôi là Huỳnh 👋</h2>
+    <p>Web Developer • Content Creator • Dreamer</p>
+    <a href="#projects">Xem Dự Án</a>
+  </section>
+
+  <section id="about" class="about">
+    <h2>Giới thiệu</h2>
+    <p>
+      Tôi là một người đam mê công nghệ và sáng tạo. 
+      Tôi xây dựng website, làm video TikTok, và chia sẻ kiến thức lập trình. 
+      Trang này là portfolio để giới thiệu bản thân và các dự án nổi bật.
+    </p>
+  </section>
+
+  <section id="projects">
+    <h2>Dự án</h2>
+    <div class="projects">
+      <div class="card">
+        <img src="https://picsum.photos/400/200?random=1" alt="Project 1">
+        <div class="content">
+          <h3>Dự án 1</h3>
+          <p>Một website demo về giới thiệu sản phẩm.</p>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://picsum.photos/400/200?random=2" alt="Project 2">
+        <div class="content">
+          <h3>Dự án 2</h3>
+          <p>Ứng dụng nhỏ học
