@@ -1,201 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Portfolio - Lý Huỳnh</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MyVideo - Trang xem video mẫu</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f9fafc;
-      color: #333;
-      line-height: 1.6;
-    }
-    header {
-      background: #0f172a;
-      color: white;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    header h1 { font-size: 22px; }
-    nav a {
-      color: white;
-      margin-left: 20px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: color 0.3s;
-    }
-    nav a:hover { color: #38bdf8; }
-
-    .hero {
-      text-align: center;
-      padding: 80px 20px;
-      background: linear-gradient(135deg, #2563eb, #38bdf8);
-      color: white;
-    }
-    .hero h2 {
-      font-size: 40px;
-      margin-bottom: 20px;
-    }
-    .hero p {
-      font-size: 20px;
-      margin-bottom: 30px;
-    }
-    .hero a {
-      display: inline-block;
-      padding: 12px 24px;
-      background: white;
-      color: #2563eb;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: background 0.3s;
-    }
-    .hero a:hover { background: #f1f5f9; }
-
-    section {
-      max-width: 1000px;
-      margin: 60px auto;
-      padding: 0 20px;
-    }
-    section h2 {
-      font-size: 28px;
-      color: #2563eb;
-      margin-bottom: 20px;
-      border-left: 5px solid #2563eb;
-      padding-left: 10px;
-    }
-    .about p { font-size: 18px; }
-
-    .projects {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
-    }
-    .card:hover { transform: translateY(-5px); }
-    .card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-    }
-    .card .content {
-      padding: 15px;
-    }
-    .card h3 { margin-bottom: 10px; }
-    .card p { color: #555; font-size: 14px; }
-
-    .contact form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .contact input, .contact textarea {
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-      width: 100%;
-    }
-    .contact button {
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      background: #2563eb;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .contact button:hover { background: #1d4ed8; }
-
-    footer {
-      background: #0f172a;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      margin-top: 50px;
-    }
+    body{font-family: system-ui, Arial; margin:0; background:#111; color:#eee;}
+    header{padding:16px; background:#0f0f0f; display:flex; align-items:center; justify-content:space-between;}
+    .brand{font-weight:700; font-size:18px;}
+    .search input{padding:8px; border-radius:6px; border:1px solid #333; background:#151515; color:#fff;}
+    main{padding:18px;}
+    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px;}
+    .card{background:#0f0f0f; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.6);}
+    .thumb{width:100%; height:130px; object-fit:cover; display:block;}
+    .meta{padding:10px;}
+    .title{font-size:14px; margin:0 0 6px;}
+    .small{font-size:12px; color:#aaa;}
+    /* Player modal */
+    .player-modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.7);}
+    .player-box{width:90%; max-width:960px; background:#000; border-radius:8px; overflow:hidden;}
+    .player-box video{width:100%; height:auto; display:block; background:#000;}
+    .close-btn{position:absolute; right:18px; top:18px; background:#222; color:#fff; padding:6px 8px; border-radius:6px; cursor:pointer;}
   </style>
 </head>
 <body>
+<header>
+  <div class="brand">MyVideo</div>
+  <div class="search">
+    <input id="search" placeholder="Tìm kiếm video..." />
+  </div>
+</header>
 
-  <header>
-    <h1>Lý Huỳnh</h1>
-    <nav>
-      <a href="#about">Giới thiệu</a>
-      <a href="#projects">Dự án</a>
-      <a href="#contact">Liên hệ</a>
-    </nav>
-  </header>
+<main>
+  <h2>Video nổi bật</h2>
+  <div id="grid" class="grid">
+    <!-- Các thẻ video sẽ được render bởi JS -->
+  </div>
+</main>
 
-  <section class="hero">
-    <h2>Xin chào, tôi là Huỳnh 👋</h2>
-    <p>Web Developer • Content Creator • Dreamer</p>
-    <a href="#projects">Xem Dự Án</a>
-  </section>
+<!-- Player modal -->
+<div id="playerModal" class="player-modal" role="dialog" aria-hidden="true">
+  <div class="player-box">
+    <button id="closeBtn" class="close-btn">Đóng</button>
+    <video id="player" controls playsinline>
+      <source id="playerSource" src="" type="video/mp4">
+      Trình duyệt của bạn không hỗ trợ thẻ video.
+    </video>
+  </div>
+</div>
 
-  <section id="about" class="about">
-    <h2>Giới thiệu</h2>
-    <p>
-      Tôi là một người đam mê công nghệ và sáng tạo. 
-      Tôi xây dựng website, làm video TikTok, và chia sẻ kiến thức lập trình. 
-      Trang này là portfolio để giới thiệu bản thân và các dự án nổi bật.
-    </p>
-  </section>
+<script>
+  // Dữ liệu mẫu - thay bằng API thực tế
+  const videos = [
+    {id:1, title:"Video mẫu 1", thumb:"https://picsum.photos/seed/v1/640/360", src:"/videos/sample1.mp4"},
+    {id:2, title:"Video mẫu 2", thumb:"https://picsum.photos/seed/v2/640/360", src:"/videos/sample2.mp4"},
+    {id:3, title:"Video mẫu 3", thumb:"https://picsum.photos/seed/v3/640/360", src:"/videos/sample3.mp4"},
+    // thêm dữ liệu...
+  ];
 
-  <section id="projects">
-    <h2>Dự án</h2>
-    <div class="projects">
-      <div class="card">
-        <img src="https://picsum.photos/400/200?random=1" alt="Project 1">
-        <div class="content">
-          <h3>Dự án 1</h3>
-          <p>Một website demo về giới thiệu sản phẩm.</p>
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://picsum.photos/400/200?random=2" alt="Project 2">
-        <div class="content">
-          <h3>Dự án 2</h3>
-          <p>Ứng dụng nhỏ học lập trình online.</p>
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://picsum.photos/400/200?random=3" alt="Project 3">
-        <div class="content">
-          <h3>Dự án 3</h3>
-          <p>Website cá nhân với GitHub Pages.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+  const grid = document.getElementById('grid');
+  function render(list){
+    grid.innerHTML = '';
+    list.forEach(v=>{
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.innerHTML = `
+        <img class="thumb" src="${v.thumb}" alt="${escapeHtml(v.title)}" />
+        <div class="meta">
+          <h3 class="title">${escapeHtml(v.title)}</h3>
+          <div class="small">Lượt xem: -- • ${new Date().getFullYear()}</div>
+        </div>`;
+      el.addEventListener('click', ()=> openPlayer(v));
+      grid.appendChild(el);
+    });
+  }
 
-  <section id="contact" class="contact">
-    <h2>Liên hệ</h2>
-    <form>
-      <input type="text" placeholder="Họ và tên" required>
-      <input type="email" placeholder="Email" required>
-      <textarea rows="5" placeholder="Nội dung..." required></textarea>
-      <button type="submit">Gửi</button>
-    </form>
-  </section>
+  render(videos);
 
-  <footer>
-    © 2025 - Portfolio của Lý Huỳnh | GitHub Pages
-  </footer>
+  // Tìm kiếm đơn giản
+  document.getElementById('search').addEventListener('input', (e)=>{
+    const q = e.target.value.toLowerCase().trim();
+    render(videos.filter(v => v.title.toLowerCase().includes(q)));
+  });
 
+  // Player modal logic
+  const modal = document.getElementById('playerModal');
+  const player = document.getElementById('player');
+  const playerSource = document.getElementById('playerSource');
+  function openPlayer(v){
+    player.pause();
+    playerSource.src = v.src; // Đường dẫn video phải là file bạn được phép dùng / stream
+    player.load();
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden','false');
+  }
+  document.getElementById('closeBtn').addEventListener('click', closePlayer);
+  modal.addEventListener('click', (e)=> { if(e.target === modal) closePlayer(); });
+  function closePlayer(){
+    player.pause();
+    player.currentTime = 0;
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden','true');
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+</script>
 </body>
 </html>
