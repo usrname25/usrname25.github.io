@@ -1,15 +1,294 @@
-from xvideos_api import Client
-# Initialize a Client object
-client = Client()
+<!doctype html>
 
-# Fetch a video
-video_object = client.get_video("<insert_url_here>")
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MyTube - Giao diện & Backend mẫu (Full-stack)</title>
+  <meta name="description" content="Bộ mẫu full-stack: Frontend (HTML), Backend (Node/Express), SQLite, Upload + FFmpeg transcoding, HLS, và Docker-compose để chạy local." />
+  <style>
+    /* Giữ nguyên style giao diện trước đó, có thể chỉnh */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, Roboto, Arial, sans-serif;background:#0f0f10;color:#e9edf0}
+    a{color:inherit;text-decoration:none}
+    header{height:64px;display:flex;align-items:center;gap:16px;padding:0 18px;background:linear-gradient(180deg,#0b0b0b,#0f0f11);border-bottom:1px solid rgba(255,255,255,0.03)}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+    .logo .mark{background:#ff3b30;color:#fff;padding:6px 8px;border-radius:4px;font-weight:900}
+    .search{flex:1;max-width:720px}
+    .search input{width:100%;padding:10px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#141416;color:#fff}
+    .icons{display:flex;gap:10px;align-items:center}
+    .icon-btn{padding:8px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+    .container{display:flex;gap:18px;padding:18px;max-width:1200px;margin:0 auto}
+    .sidebar{width:220px}
+    .sidebar .box{background:#0c0c0d;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .card{background:#0b0b0c;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.02);cursor:pointer;transition:transform .12s}
+    .thumb{width:100%;height:124px;object-fit:cover;background:#111}
+    .player-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(rgba(2,2,2,0.7),rgba(2,2,2,0.9));z-index:60}
+    .player-panel{width:92%;max-width:1100px;background:#000;border-radius:10px;overflow:hidden;position:relative}
+    .player-panel video{width:100%;height:56vw;max-height:620px;background:#000;display:block}
+    .close{position:absolute;right:12px;top:12px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.06);cursor:pointer}
+    @media (max-width:900px){.container{padding:12px}.sidebar{display:none}.thumb{height:110px}.player-panel video{height:50vw}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><div class="mark">MV</div><div>MyVideo</div></div>
+    <div class="search"><input id="searchInput" placeholder="Tìm video, tác giả, thẻ..."/></div>
+    <div class="icons">
+      <button class="icon-btn btn" id="uploadOpen">Tải lên</button>
+      <button class="icon-btn">Đăng nhập</button>
+    </div>
+  </header>  <div class="container">
+    <main style="flex:1">
+      <div style="margin:12px 0;color:#9aa0a6">Giao diện + Backend mẫu: demo local. Nội dung phải là của bạn hoặc có bản quyền.</div>
+      <section class="grid" id="grid"></section>
+      <div style="text-align:center;margin:18px 0"><button id="loadMore" class="btn">Tải thêm</button></div>
+    </main>
+  </div>  <!-- Modal Upload -->  <div id="uploadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#0b0b0c;padding:18px;border-radius:10px;max-width:640px;width:100%;">
+      <h3>Tải video lên</h3>
+      <form id="uploadForm">
+        <div style="margin:8px 0"><input name="title" placeholder="Tiêu đề" required style="width:100%;padding:8px;border-radius:6px;background:#111;border:1px solid #222;color:#fff"/></div>
+        <div style="margin:8px 0"><input type="file" name="file" accept="video/*" required/></div>
+        <div style="display:flex;gap:8px"><button type="submit" class="btn">Tải lên</button><button type="button" id="cancelUpload" class="btn">Hủy</button></div>
+      </form>
+      <div id="uploadStatus" style="margin-top:8px;color:#9aa0a6"></div>
+    </div>
+  </div>  <!-- Player modal -->  <div id="playerModal" class="player-modal" role="dialog" aria-hidden="true">
+    <div class="player-panel" role="document">
+      <button class="close" id="closePlayer">Đóng ✕</button>
+      <!-- HLS player: use <video> + hls.js on unsupported browsers -->
+      <video id="videoPlayer" controls playsinline></video>
+      <div style="padding:12px;color:#e6e6e6"><h3 id="playerTitle">Tiêu đề</h3><div id="playerMeta" style="color:#9aa0a6"></div></div>
+    </div>
+  </div>  <script>
+    // Frontend connects to backend API at same origin (/api)
+    async function fetchVideos(){
+      const res = await fetch('/api/videos');
+      return res.json();
+    }
 
-# Information from Video objects
-print(video_object.title)
-print(video_object.likes)
-# Download the video
+    function renderList(videos){
+      const grid = document.getElementById('grid'); grid.innerHTML='';
+      videos.forEach(v=>{
+        const el = document.createElement('article'); el.className='card';
+        el.innerHTML = `<img class=\"thumb\" src=\"${v.thumb || '/static/placeholder.png'}\" loading=\"lazy\"/>
+          <div style=\"padding:10px\">
+            <div style=\"font-weight:600;color:#fff\">${escapeHtml(v.title)}</div>
+            <div style=\"color:#9aa0a6;font-size:13px\">${v.views} lượt xem • ${v.duration || '--'}</div>
+          </div>`;
+        el.addEventListener('click', ()=> openPlayer(v));
+        grid.appendChild(el);
+      });
+    }
 
-video_object.download(downloader="threaded", quality="best", path="your_output_path + filename")
+    function escapeHtml(s){ return String(s).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c])); }
 
-# SEE DOCUMENTATION FOR MORE
+    async function load(){
+      try{ const videos = await fetchVideos(); renderList(videos); }catch(e){ console.error(e); }
+    }
+    load();
+
+    // Player logic: support HLS via hls.js when needed
+    function openPlayer(v){
+      const modal = document.getElementById('playerModal');
+      const video = document.getElementById('videoPlayer');
+      const title = document.getElementById('playerTitle');
+      title.textContent = v.title;
+      // Prefer HLS .m3u8 if available, else mp4
+      const src = v.hls || v.file;
+      if(!src) return alert('Video chưa sẵn sàng');
+      // If browser supports HLS natively (Safari) set src, else use hls.js
+      if(video.canPlayType('application/vnd.apple.mpegurl')){
+        video.src = src;
+      }else{
+        // load hls.js dynamically
+        if(window.Hls){
+          const hls = new Hls(); hls.loadSource(src); hls.attachMedia(video);
+        }else{
+          const s = document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/hls.js@latest'; s.onload = ()=>{ const hls = new Hls(); hls.loadSource(src); hls.attachMedia(video); };
+          document.head.appendChild(s);
+        }
+      }
+      modal.style.display='flex'; modal.setAttribute('aria-hidden','false');
+    }
+    document.getElementById('closePlayer').addEventListener('click', ()=>{ const m=document.getElementById('playerModal'); m.style.display='none'; m.setAttribute('aria-hidden','true'); const v=document.getElementById('videoPlayer'); v.pause(); v.removeAttribute('src'); v.load(); });
+
+    // Upload modal
+    document.getElementById('uploadOpen').addEventListener('click', ()=>{ document.getElementById('uploadModal').style.display='flex'; });
+    document.getElementById('cancelUpload').addEventListener('click', ()=>{ document.getElementById('uploadModal').style.display='none'; });
+    document.getElementById('uploadForm').addEventListener('submit', async (e)=>{
+      e.preventDefault(); const f = new FormData(e.target); document.getElementById('uploadStatus').textContent='Đang tải...';
+      try{
+        const res = await fetch('/api/upload',{method:'POST',body:f});
+        const j = await res.json(); document.getElementById('uploadStatus').textContent = j.message || 'Xong';
+        if(res.ok){ setTimeout(()=>{ document.getElementById('uploadModal').style.display='none'; load(); },800); }
+      }catch(err){ document.getElementById('uploadStatus').textContent = 'Lỗi: ' + err.message; }
+    });
+
+    // simple load more (placeholder)
+    document.getElementById('loadMore').addEventListener('click', ()=> load());
+  </script>  <!-- ====== BACKEND: Node/Express + SQLite + FFmpeg (HƯỚNG DẪN) ====== -->  <!--
+    Tệp backend và vận hành được cung cấp bên dưới — sao chép vào project server.
+
+    1) Cài đặt (local): Node >=18, npm, ffmpeg (system)
+       - Ubuntu: sudo apt update && sudo apt install -y ffmpeg
+
+    2) Cấu trúc thư mục (gợi ý):
+       /server
+         |- index.js            # main express app
+         |- db.sqlite           # sqlite file (tạo tự động)
+         |- uploads/            # file gốc
+         |- videos/             # mp4 + hls output (public)
+         |- package.json
+         |- ffmpeg-worker.js    # helper transcoding logic
+
+    3) File: package.json
+    {
+      "name":"myvideo-server",
+      "version":"1.0.0",
+      "main":"index.js",
+      "scripts":{
+        "start":"node index.js"
+      },
+      "dependencies":{
+        "express":"^4.18.2",
+        "multer":"^1.4.5-lts.1",
+        "sqlite3":"^5.1.6",
+        "cors":"^2.8.5",
+        "uuid":"^9.0.0"
+      }
+    }
+
+    4) File: index.js (Express server)
+  -->  <!-- START index.js -->  <script type="text/plain">
+  // index.js (PHẢI CHẠY TRÊN NODE, không phải trong trình duyệt)
+  const express = require('express');
+  const multer = require('multer');
+  const path = require('path');
+  const fs = require('fs');
+  const sqlite3 = require('sqlite3').verbose();
+  const { v4: uuidv4 } = require('uuid');
+  const { spawn } = require('child_process');
+  const cors = require('cors');
+
+  const UPLOAD_DIR = path.join(__dirname, 'uploads');
+  const OUT_DIR = path.join(__dirname, 'videos');
+  if(!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR,{recursive:true});
+  if(!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR,{recursive:true});
+
+  // SQLite init
+  const db = new sqlite3.Database(path.join(__dirname,'db.sqlite'));
+  db.serialize(()=>{
+    db.run(`CREATE TABLE IF NOT EXISTS videos (
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      filename TEXT,
+      hls_path TEXT,
+      thumb TEXT,
+      views INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+  });
+
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
+  app.use('/static', express.static(path.join(__dirname,'static')));
+  app.use('/videos', express.static(OUT_DIR)); // serve video outputs (mp4/hls)
+
+  const storage = multer.diskStorage({ destination: UPLOAD_DIR, filename: (req,file,cb)=>{ const id = uuidv4(); const ext = path.extname(file.originalname); cb(null, id+ext); } });
+  const upload = multer({ storage });
+
+  // API: list videos
+  app.get('/api/videos', (req,res)=>{
+    db.all('SELECT id,title,filename,hls_path,thumb,views,created_at FROM videos ORDER BY created_at DESC LIMIT 100', (err,rows)=>{
+      if(err) return res.status(500).json({error:err.message});
+      // map thumbs to accessible URL
+      const mapped = rows.map(r=>({ id:r.id, title:r.title, file: r.filename ? `/videos/${r.filename}` : null, hls: r.hls_path ? `/videos/${r.hls_path}` : null, thumb: r.thumb || '/static/placeholder.png', views: r.views }));
+      res.json(mapped);
+    });
+  });
+
+  // API: upload
+  app.post('/api/upload', upload.single('file'), (req,res)=>{
+    const title = req.body.title || req.file.originalname;
+    const filename = path.basename(req.file.path);
+    const id = uuidv4();
+    // Insert DB row with filename (we will transcode async)
+    db.run('INSERT INTO videos (id,title,filename) VALUES (?,?,?)', [id,title,filename], (err)=>{
+      if(err) return res.status(500).json({error:err.message});
+      // Transcode in background
+      startTranscode(req.file.path, filename, id);
+      res.json({ok:true,message:'Tải lên thành công. Video sẽ được xử lý (transcoding) trong vài phút.'});
+    });
+  });
+
+  // Start server
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, ()=> console.log('Server listening on',PORT));
+
+  // Transcoding helper: create mp4 (720p) + HLS playlist
+  function startTranscode(inputPath, filename, videoId){
+    const nameNoExt = path.parse(filename).name;
+    const outMp4 = path.join(OUT_DIR, nameNoExt + '.mp4');
+    const hlsDir = path.join(OUT_DIR, nameNoExt + '_hls');
+    if(!fs.existsSync(hlsDir)) fs.mkdirSync(hlsDir,{recursive:true});
+    const hlsPlaylist = path.join(hlsDir, 'index.m3u8');
+
+    // Example FFmpeg commands:
+    // 1) create a web-friendly mp4 (720p)
+    const ff1 = spawn('ffmpeg',['-i', inputPath, '-c:v','libx264','-preset','fast','-crf','23','-c:a','aac','-b:a','128k','-vf','scale=-2:720','-y', outMp4]);
+    ff1.stderr.on('data', d=> console.log('[ffmpeg mp4]', d.toString()));
+    ff1.on('close', code=>{
+      console.log('mp4 done',code);
+      // 2) create HLS
+      const ff2 = spawn('ffmpeg', ['-i', inputPath, '-c:v','libx264','-preset','fast','-crf','23','-c:a','aac','-b:a','128k','-vf','scale=-2:720','-hls_time','6','-hls_playlist_type','vod','-hls_segment_filename', path.join(hlsDir,'seg%03d.ts'), '-y', hlsPlaylist]);
+      ff2.stderr.on('data', d=> console.log('[ffmpeg hls]', d.toString()));
+      ff2.on('close', code2=>{
+        console.log('hls done', code2);
+        const hlsRel = path.relative(OUT_DIR, path.join(hlsDir,'index.m3u8')).split(path.sep).join('/');
+        // update DB row with hls path and mp4 filename
+        db.run('UPDATE videos SET hls_path = ?, filename = ? WHERE id = ?', [hlsRel, nameNoExt + '.mp4', videoId], err=>{ if(err) console.error(err); });
+        // optionally remove original upload to save space
+        try{ fs.unlinkSync(inputPath); }catch(e){}
+      });
+    });
+  }
+  </script>  <!-- END index.js -->  <!-- ====== HƯỚNG DẪN CHẠY LOCAL (CLI) ======
+    1) Tạo folder server, dán package.json và index.js vào.
+    2) npm install
+    3) Cài ffmpeg trên hệ thống (apt/brew/choco)
+    4) node index.js
+    5) Mở trình duyệt tới http://localhost:3000/ (phục vụ frontend tĩnh từ folder hosting)
+
+    LƯU Ý:
+      - Đây là môi trường DEMO; cho production cần bảo mật (auth, rate-limit, virus-scan, kiểm duyệt), HTTPS, storage bền (S3), CDN, worker queue (RabbitMQ/Redis) cho transcode, và monitoring.
+
+  ====== DOCKER-COMPOSE (TÙY CHỌN) ======
+  
+  version: '3.8'
+  services:
+    web:
+      build: .
+      ports:
+        - 3000:3000
+      volumes:
+        - ./uploads:/app/uploads
+        - ./videos:/app/videos
+      environment:
+        - NODE_ENV=production
+
+  Nếu bạn muốn MinIO (S3 compat) để lưu trữ, thêm service minio và đổi logic upload -> PUT object.
+  -->  <!-- ====== Checklist production (tóm tắt) ======
+     - Bảo mật: Authentication, Authorization, rate limiting
+     - Kiểm duyệt: manual + automated (hash, ML) + reports
+     - DMCA takedown process
+     - HTTPS + CORS đúng domain
+     - Scalability: transcoding worker pool, S3 + CDN
+     - Storage cleanup & quotas
+     - Logging & monitoring
+  ======
+  --></body>
+</html>
